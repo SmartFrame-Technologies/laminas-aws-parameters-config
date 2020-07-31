@@ -1,0 +1,27 @@
+{
+  "name": "smartframe-technologies/laminas-aws-parameters-config",
+  "description": "Provides config from AWS Systems Manager Parameter Store",
+  "minimum-stability": "stable",
+  "license": "tbd",
+  "authors": [
+    {
+      "name": "Tomasz Woźniak",
+      "email": "tomasz.wozniak@smartframe.io"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "aws/aws-sdk-php": "^3.147",
+    "laminas/laminas-servicemanager": "^3.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "SmartFrame\\ParametersConfig\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SmartFrameTest\\ParametersConfig\\": "test/"
+    }
+  }
+}
