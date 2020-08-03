@@ -2,7 +2,7 @@
   "name": "smartframe-technologies/laminas-aws-parameters-config",
   "description": "Provides config from AWS Systems Manager Parameter Store",
   "minimum-stability": "stable",
-  "license": "tbd",
+  "license": "Apache-2.0",
   "authors": [
     {
       "name": "Tomasz Woźniak",
@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "php": "^7.1",
+    "php": "^7.3",
     "aws/aws-sdk-php": "^3.147",
     "laminas/laminas-servicemanager": "^3.4"
   },
