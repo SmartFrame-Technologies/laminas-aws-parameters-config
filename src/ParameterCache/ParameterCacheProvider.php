@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ConfigProvider\ParameterCache;
+namespace SmartFrame\ParametersConfig\ParameterCache;
 
 use SmartFrame\ParametersConfig\ParameterProviderInterface;
 
