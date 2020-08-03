@@ -1,0 +1,21 @@
+language: php
+
+cache:
+    directories:
+        - $HOME/.composer/cache
+
+env:
+    global:
+        - COMPOSER_ARGS="--no-interaction"
+
+matrix:
+    fast_finish: true
+    include:
+        - php: 7.3
+        - php: 7.4
+
+install:
+    - travis_retry composer install $COMPOSER_ARGS
+
+script:
+    - vendor/bin/phpunit -c phpunit.xml.dist
