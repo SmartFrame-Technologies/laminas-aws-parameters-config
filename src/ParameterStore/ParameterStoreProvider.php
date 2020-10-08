@@ -49,7 +49,14 @@ class ParameterStoreProvider implements ParameterProviderInterface
             //remove path prefix
             $name = str_replace([$envPath, $globalPath], '', $parameter['Name']);
 
-            $config[$name] = $parameter['Value'] !== 'null' ? $parameter['Value'] : null;
+            switch ($parameter['Type']) {
+                case 'String':
+                    $config[$name] = $parameter['Value'] !== 'null' ? $parameter['Value'] : null;
+                    break;
+                case 'StringList':
+                    $config[$name] = $parameter['Value'] !== 'null' ? explode(',', $parameter['Value']) : null;
+                    break;
+            }
         }
 
         return $config;
