@@ -19,13 +19,15 @@ class ParameterStoreProviderTest extends TestCase
         $result = [
             '/app/global/' => new Result([
                 'Parameters' => [
-                    ['Name' => '/app/global/mailer/transport/name', 'Value' => 'a-global'],
-                    ['Name' => '/app/global/mailer/transport/host', 'Value' => 'b-global']
+                    ['Name' => '/app/global/mailer/transport/name', 'Value' => 'a-global', 'Type' => 'String'],
+                    ['Name' => '/app/global/mailer/transport/host', 'Value' => 'b-global', 'Type' => 'String']
                 ]
             ]),
             '/app/test/' => new Result([
                 'Parameters' => [
-                    ['Name' => '/app/test/mailer/transport/name', 'Value' => 'a-env'],
+                    ['Name' => '/app/test/mailer/transport/name', 'Value' => 'a-env', 'Type' => 'String'],
+                    ['Name' => '/app/test/string-list', 'Value' => 'a,b,c', 'Type' => 'StringList'],
+                    ['Name' => '/app/test/string-list-incomplete', 'Value' => 'd', 'Type' => 'StringList'],
                 ]
             ]),
         ];
@@ -41,10 +43,19 @@ class ParameterStoreProviderTest extends TestCase
 
         $config = $parameterStoreProvider->getConfig();
 
-        self::assertCount(2, $config);
+        self::assertCount(4, $config);
         self::assertArrayHasKey('mailer/transport/host', $config);
         self::assertArrayHasKey('mailer/transport/name', $config);
+        self::assertArrayHasKey('string-list', $config);
+        self::assertArrayHasKey('string-list-incomplete', $config);
         self::assertSame($config['mailer/transport/name'], 'a-env');
         self::assertSame($config['mailer/transport/host'], 'b-global');
+        self::assertIsArray($config['string-list']);
+        self::assertCount(3, $config['string-list']);
+        self::assertEquals('a', $config['string-list'][0]);
+        self::assertEquals('b', $config['string-list'][1]);
+        self::assertEquals('c', $config['string-list'][2]);
+        self::assertIsArray($config['string-list-incomplete']);
+        self::assertCount(1, $config['string-list-incomplete']);
     }
 }
