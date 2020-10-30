@@ -25,20 +25,26 @@ class ParameterStoreProvider implements ParameterProviderInterface
      */
     private $env;
 
-    public function __construct(SsmClient $ssmClient, string $env)
+    /**
+     * @var string
+     */
+    private $pathPrefix;
+
+    public function __construct(SsmClient $ssmClient, string $env, string $pathPrefix = self::APPLICATION_PATH_PREFIX)
     {
         $this->ssmClient = $ssmClient;
         $this->env = $env;
+        $this->pathPrefix = $pathPrefix;
     }
 
     public function getConfig(): array
     {
         //get global application parameters
-        $globalPath = sprintf('/%s/global/', self::APPLICATION_PATH_PREFIX);
+        $globalPath = sprintf('/%s/global/', $this->pathPrefix);
         $parametersGlobal = $this->getParametersByPath($globalPath);
 
         //get ENV specific application parameters
-        $envPath = sprintf('/%s/%s/', self::APPLICATION_PATH_PREFIX, $this->env);
+        $envPath = sprintf('/%s/%s/', $this->pathPrefix, $this->env);
         $parameterEnv = $this->getParametersByPath($envPath);
 
         //merge both parameter groups
