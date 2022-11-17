@@ -5,12 +5,12 @@
   "license": "Apache-2.0",
   "authors": [
     {
-      "name": "Tomasz Woźniak",
-      "email": "tomasz.wozniak@smartframe.io"
+      "name": "Tomasz Woźniak, Michał Korotkiewicz",
+      "email": "tomasz.wozniak@smartframe.io, michal.korotkiewicz@smartframe.io"
     }
   ],
   "require": {
-    "php": "^7.3 || ^8.0",
+    "php": "^7.4 || ^8.0",
     "aws/aws-sdk-php": "^3.147",
     "laminas/laminas-servicemanager": "^3.4"
   },

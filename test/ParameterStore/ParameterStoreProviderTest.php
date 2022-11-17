@@ -6,6 +6,7 @@ namespace SmartFrameTest\ParametersConfig\ParameterStore;
 
 use Aws\Result;
 use Aws\Ssm\SsmClient;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use SmartFrame\ParametersConfig\ParameterStore\ParameterStoreProvider;
 
@@ -14,32 +15,8 @@ class ParameterStoreProviderTest extends TestCase
 
     public function testGetConfig(): void
     {
-        $ssmClientMock = $this->createPartialMock(SsmClient::class, ['getParametersByPath']);
-
-        $result = [
-            '/app/global/' => new Result([
-                'Parameters' => [
-                    ['Name' => '/app/global/mailer/transport/name', 'Value' => 'a-global', 'Type' => 'String'],
-                    ['Name' => '/app/global/mailer/transport/host', 'Value' => 'b-global', 'Type' => 'String']
-                ]
-            ]),
-            '/app/test/' => new Result([
-                'Parameters' => [
-                    ['Name' => '/app/test/mailer/transport/name', 'Value' => 'a-env', 'Type' => 'String'],
-                    ['Name' => '/app/test/string-list', 'Value' => 'a,b,c', 'Type' => 'StringList'],
-                    ['Name' => '/app/test/string-list-incomplete', 'Value' => 'd', 'Type' => 'StringList'],
-                ]
-            ]),
-        ];
-
-        $ssmClientMock
-            ->expects(self::exactly(2))
-            ->method('getParametersByPath')
-            ->willReturnCallback(static function ($args) use ($result) {
-                return $result[$args['Path']];
-            });
-
-        $parameterStoreProvider = new ParameterStoreProvider($ssmClientMock, getenv('APP_ENV'));
+        $ssmClientMock = $this->preparePartialMockedSsmClient();
+        $parameterStoreProvider = new ParameterStoreProvider($ssmClientMock, [getenv('APP_ENV')]);
 
         $config = $parameterStoreProvider->getConfig();
 
@@ -57,5 +34,56 @@ class ParameterStoreProviderTest extends TestCase
         self::assertEquals('c', $config['string-list'][2]);
         self::assertIsArray($config['string-list-incomplete']);
         self::assertCount(1, $config['string-list-incomplete']);
+    }
+
+    public function testAddRemoveEnv()
+    {
+        $ssmClientMock = $this->preparePartialMockedSsmClient();
+        $parameterStoreProvider = new ParameterStoreProvider($ssmClientMock, []);
+
+        $globalConfig = $parameterStoreProvider->getConfig();
+        self::assertCount(2, $globalConfig);
+
+        $parameterStoreProvider->addEnv(ParameterStoreProvider::TEST_ENV);
+        $globalAndTestConfig = $parameterStoreProvider->getConfig();
+        self::assertCount(4, $globalAndTestConfig);
+
+        $parameterStoreProvider->removeEnv(ParameterStoreProvider::TEST_ENV);
+        $nextGlobalConfig = $parameterStoreProvider->getConfig();
+        self::assertCount(2, $nextGlobalConfig);
+        self::assertSame($globalConfig, $nextGlobalConfig);
+    }
+
+    protected function preparePartialMockedSsmClient(): MockObject
+    {
+        $ssmClientMock = $this->createPartialMock(SsmClient::class, ['getParametersByPath']);
+
+        $result = [
+            '/app/'.ParameterStoreProvider::GLOBAL_ENV.'/' => new Result(
+                [
+                    'Parameters' => [
+                        ['Name' => '/app/global/mailer/transport/name', 'Value' => 'a-global', 'Type' => 'String'],
+                        ['Name' => '/app/global/mailer/transport/host', 'Value' => 'b-global', 'Type' => 'String']
+                    ]
+                ]
+            ),
+            '/app/'.ParameterStoreProvider::TEST_ENV.'/' => new Result(
+                [
+                    'Parameters' => [
+                        ['Name' => '/app/test/mailer/transport/name', 'Value' => 'a-env', 'Type' => 'String'],
+                        ['Name' => '/app/test/string-list', 'Value' => 'a,b,c', 'Type' => 'StringList'],
+                        ['Name' => '/app/test/string-list-incomplete', 'Value' => 'd', 'Type' => 'StringList'],
+                    ]
+                ]
+            ),
+        ];
+
+        $ssmClientMock
+            ->method('getParametersByPath')
+            ->willReturnCallback(static function ($args) use ($result) {
+                return $result[$args['Path']];
+            });
+
+        return $ssmClientMock;
     }
 }

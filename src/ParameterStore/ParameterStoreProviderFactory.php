@@ -12,7 +12,7 @@ class ParameterStoreProviderFactory implements FactoryInterface
 {
     public function __invoke(ContainerInterface $container, $requestedName, array $options = null): ParameterStoreProvider
     {
-        return new ParameterStoreProvider($container->get(SsmClient::class), APP_ENV);
+        return new ParameterStoreProvider($container->get(SsmClient::class), [APP_ENV]);
     }
 
 }
