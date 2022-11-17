@@ -57,8 +57,6 @@ class ParameterStoreProvider implements ParameterProviderInterface
     {
         $config = [];
 
-//        var_dump($this->envs);
-
         //merge envs parameters
         foreach ($this->envs as $env) {
             $envPath = sprintf('/%s/%s/', $this->pathPrefix, $env);
@@ -83,6 +81,9 @@ class ParameterStoreProvider implements ParameterProviderInterface
                     break;
                 case 'StringList':
                     $config[$name] = $parameter['Value'] !== 'null' ? explode(',', $parameter['Value']) : null;
+                    break;
+                default:
+                    //omit parameter
                     break;
             }
         }

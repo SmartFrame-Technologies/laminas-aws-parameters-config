@@ -25,8 +25,8 @@ class ParameterStoreProviderTest extends TestCase
         self::assertArrayHasKey('mailer/transport/name', $config);
         self::assertArrayHasKey('string-list', $config);
         self::assertArrayHasKey('string-list-incomplete', $config);
-        self::assertSame($config['mailer/transport/name'], 'a-env');
-        self::assertSame($config['mailer/transport/host'], 'b-global');
+        self::assertSame('a-env', $config['mailer/transport/name']);
+        self::assertSame('b-global', $config['mailer/transport/host']);
         self::assertIsArray($config['string-list']);
         self::assertCount(3, $config['string-list']);
         self::assertEquals('a', $config['string-list'][0]);
