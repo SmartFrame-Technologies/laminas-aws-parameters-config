@@ -10,50 +10,70 @@ use SmartFrame\ParametersConfig\ParameterProviderInterface;
 
 class ParameterStoreProvider implements ParameterProviderInterface
 {
+    public const GLOBAL_ENV = 'global';
+    public const DEV_ENV = 'dev';
+    public const TEST_ENV = 'test';
     protected const APPLICATION_PATH_PREFIX = 'app';
     protected const SSM_MAX_RESULT = 10;
     protected const MAX_RETRY = 3;
     protected const SLEEP_TIME_BEFORE_RETRY = 3; //in seconds
 
-    /**
-     * @var SsmClient
-     */
-    private $ssmClient;
+    private SsmClient $ssmClient;
+    private array $envs = [self::GLOBAL_ENV];
+    private string $pathPrefix;
 
-    /**
-     * @var string
-     */
-    private $env;
-
-    /**
-     * @var string
-     */
-    private $pathPrefix;
-
-    public function __construct(SsmClient $ssmClient, string $env, string $pathPrefix = self::APPLICATION_PATH_PREFIX)
-    {
+    public function __construct(
+        SsmClient $ssmClient,
+        array $env = [],
+        string $pathPrefix = self::APPLICATION_PATH_PREFIX
+    ) {
         $this->ssmClient = $ssmClient;
-        $this->env = $env;
+        $this->envs = array_values(array_unique(array_merge($this->envs, $env)));
         $this->pathPrefix = $pathPrefix;
+    }
+
+    public function addEnv(string $env): self
+    {
+        if (!in_array($env, $this->envs)) {
+            $this->envs[] = $env;
+        }
+
+        return $this;
+    }
+
+    public function removeEnv(string $env): self
+    {
+        $key = array_search($env, $this->envs);
+
+        if ($key !== false) {
+            unset($this->envs[$key]);
+            $this->envs = array_values($this->envs);
+        }
+
+        return $this;
     }
 
     public function getConfig(): array
     {
-        //get global application parameters
-        $globalPath = sprintf('/%s/global/', $this->pathPrefix);
-        $parametersGlobal = $this->getParametersByPath($globalPath);
-
-        //get ENV specific application parameters
-        $envPath = sprintf('/%s/%s/', $this->pathPrefix, $this->env);
-        $parameterEnv = $this->getParametersByPath($envPath);
-
-        //merge both parameter groups
-        $parameters = array_merge($parametersGlobal, $parameterEnv);
-
         $config = [];
+
+        //merge envs parameters
+        foreach ($this->envs as $env) {
+            $envPath = sprintf('/%s/%s/', $this->pathPrefix, $env);
+            $envConfig = $this->parseConfig($this->getParametersByPath($envPath), $envPath);
+            $config = array_merge($config, $envConfig);
+        }
+
+        return $config;
+    }
+
+    protected function parseConfig(array $parameters, string $envPath): array
+    {
+        $config = [];
+
         foreach ($parameters as $parameter) {
             //remove path prefix
-            $name = str_replace([$envPath, $globalPath], '', $parameter['Name']);
+            $name = str_replace($envPath, '', $parameter['Name']);
 
             switch ($parameter['Type']) {
                 case 'String':
@@ -61,6 +81,9 @@ class ParameterStoreProvider implements ParameterProviderInterface
                     break;
                 case 'StringList':
                     $config[$name] = $parameter['Value'] !== 'null' ? explode(',', $parameter['Value']) : null;
+                    break;
+                default:
+                    //omit parameter
                     break;
             }
         }
