@@ -56,7 +56,7 @@ class ParameterStoreProviderTest extends TestCase
 
     protected function preparePartialMockedSsmClient(): MockObject
     {
-        $ssmClientMock = $this->createPartialMock(SsmClient::class, ['getParametersByPath']);
+        $ssmClientMock = $this->createMock(SsmClient::class);
 
         $result = [
             '/app/'.ParameterStoreProvider::GLOBAL_ENV.'/' => new Result(
@@ -79,9 +79,10 @@ class ParameterStoreProviderTest extends TestCase
         ];
 
         $ssmClientMock
-            ->method('getParametersByPath')
-            ->willReturnCallback(static function ($args) use ($result) {
-                return $result[$args['Path']];
+            ->method('__call')
+            ->with('getParametersByPath')
+            ->willReturnCallback(static function ($method, $args) use ($result) {
+                return $result[$args[0]['Path']];
             });
 
         return $ssmClientMock;

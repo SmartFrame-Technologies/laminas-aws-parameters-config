@@ -44,8 +44,10 @@ class ParameterStoreProvider implements ParameterProviderInterface
     public function removeEnv(string $env): self
     {
         $key = array_search($env, $this->envs);
+
         if ($key !== false) {
-            $this->envs = array_values(array_splice($this->envs, $key, 1));
+            unset($this->envs[$key]);
+            $this->envs = array_values($this->envs);
         }
 
         return $this;
@@ -54,6 +56,8 @@ class ParameterStoreProvider implements ParameterProviderInterface
     public function getConfig(): array
     {
         $config = [];
+
+//        var_dump($this->envs);
 
         //merge envs parameters
         foreach ($this->envs as $env) {
