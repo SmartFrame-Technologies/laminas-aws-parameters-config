@@ -5,8 +5,12 @@
   "license": "Apache-2.0",
   "authors": [
     {
-      "name": "Tomasz Woźniak, Michał Korotkiewicz",
-      "email": "tomasz.wozniak@smartframe.io, michal.korotkiewicz@smartframe.io"
+      "name": "Tomasz Woźniak",
+      "email": "tomasz.wozniak@smartframe.io"
+    },
+    {
+      "name": "Michał Korotkiewicz",
+      "email": "michal.korotkiewicz@smartframe.io"
     }
   ],
   "require": {
