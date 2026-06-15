@@ -48,7 +48,7 @@ class ParameterStoreProviderTest extends TestCase
 
         $parameterStoreProvider->addEnv(ParameterStoreProvider::TEST_ENV);
         $globalAndTestConfig = $parameterStoreProvider->getConfig();
-        self::assertCount(4, $globalAndTestConfig);
+        self::assertCount(5, $globalAndTestConfig);
 
         $parameterStoreProvider->removeEnv(ParameterStoreProvider::TEST_ENV);
         $nextGlobalConfig = $parameterStoreProvider->getConfig();
