@@ -77,6 +77,7 @@ class ParameterStoreProvider implements ParameterProviderInterface
 
             switch ($parameter['Type']) {
                 case 'String':
+                case 'SecureString':
                     $config[$name] = $parameter['Value'] !== 'null' ? $parameter['Value'] : null;
                     break;
                 case 'StringList':
@@ -103,6 +104,7 @@ class ParameterStoreProvider implements ParameterProviderInterface
                 'Path' => $path,
                 'Recursive' => true,
                 'MaxResults' => self::SSM_MAX_RESULT,
+                'WithDecryption' => true,
             ];
 
             if ($nextToken) {

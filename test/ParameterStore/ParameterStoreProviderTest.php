@@ -20,7 +20,9 @@ class ParameterStoreProviderTest extends TestCase
 
         $config = $parameterStoreProvider->getConfig();
 
-        self::assertCount(4, $config);
+        self::assertCount(5, $config);
+        self::assertArrayHasKey('secure/config/token', $config);
+        self::assertSame('secure-token', $config['secure/config/token']);
         self::assertArrayHasKey('mailer/transport/host', $config);
         self::assertArrayHasKey('mailer/transport/name', $config);
         self::assertArrayHasKey('string-list', $config);
@@ -71,6 +73,7 @@ class ParameterStoreProviderTest extends TestCase
                 [
                     'Parameters' => [
                         ['Name' => '/app/test/mailer/transport/name', 'Value' => 'a-env', 'Type' => 'String'],
+                        ['Name' => '/app/test/secure/config/token', 'Value' => 'secure-token', 'Type' => 'SecureString'],
                         ['Name' => '/app/test/string-list', 'Value' => 'a,b,c', 'Type' => 'StringList'],
                         ['Name' => '/app/test/string-list-incomplete', 'Value' => 'd', 'Type' => 'StringList'],
                     ]
@@ -82,6 +85,8 @@ class ParameterStoreProviderTest extends TestCase
             ->method('__call')
             ->with('getParametersByPath')
             ->willReturnCallback(static function ($method, $args) use ($result) {
+                self::assertArrayHasKey('WithDecryption', $args[0]);
+                self::assertTrue($args[0]['WithDecryption']);
                 return $result[$args[0]['Path']];
             });
 
