@@ -14,7 +14,7 @@
     }
   ],
   "require": {
-    "php": "^7.4 || ^8.0",
+    "php": "^8.1",
     "aws/aws-sdk-php": "^3.147",
     "laminas/laminas-servicemanager": "^3.4"
   },
